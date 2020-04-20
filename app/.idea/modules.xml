@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-545023980/Android-Image-Picker-and-Cropping.iml" filepath="$PROJECT_DIR$/.idea/modules/-545023980/Android-Image-Picker-and-Cropping.iml" group="Android-Image-Picker-and-Cropping" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app.iml" group="Android-Image-Picker-and-Cropping/app" />
+    </modules>
+  </component>
+</project>
