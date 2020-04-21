@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.img_profile)
     ImageView imgProfile;
 
+    @BindView(R.id.ivTest)
+    ImageView ivTest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,10 +79,14 @@ public class MainActivity extends AppCompatActivity {
                                 height
                         )
                 )
+
+//                resize(300,300)
                 .into(imgProfile);
 
         Picasso.get().load(original).transform(new CropTransformation(left, top, width, height)).into(imgProfile);
         imgProfile.setColorFilter(ContextCompat.getColor(this, android.R.color.transparent));
+        Picasso.get().load(original).resize(300,300). into(ivTest);
+
     }
 
     private void loadProfileDefault() {
@@ -163,15 +170,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("SARA", "" + data.getIntExtra("offsetY", 0));
 
                 new File(data.getStringExtra("original"));
-                try {
+//                try {
                     // You can update this bitmap to your server
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), orginal);
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), orginal);
 
                     // loading profile image from local cache
                     loadProfile(data);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                }
+//                catch (IOException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
     }

@@ -6,6 +6,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -25,6 +27,10 @@ import com.yalantis.ucrop.UCrop;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 import static android.support.v4.content.FileProvider.getUriForFile;
@@ -156,6 +162,53 @@ public class ImagePickerActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQUEST_IMAGE_CAPTURE:
                 if (resultCode == RESULT_OK) {
+                    try {
+                        Bitmap bitmap;
+                        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+                        final int destWidth = 600;//or the width you need
+                        bitmap = BitmapFactory.decodeFile(getCacheImageFile(fileName).getAbsolutePath(),
+                                bitmapOptions);
+                        int origWidth = bitmap.getWidth();
+                        int origHeight = bitmap.getHeight();
+                        if (origWidth > destWidth) {
+                            // picture is wider than we want it, we calculate its target height
+                            int destHeight = origHeight / (origWidth / destWidth);
+                            // we create an scaled bitmap so it reduces the image, not just trim it
+                            bitmap = Bitmap.createScaledBitmap(bitmap, 600, 600, false);
+                        }
+//                    viewImage.setImageBitmap(bitmap);
+                        String path = android.os.Environment
+                                .getExternalStorageDirectory()
+                                + File.separator;
+//                        String path = getCacheImagePath(fileName).getPath().;
+                        //fileName.delete();
+                        OutputStream outFile = null;
+                        File file = new File(path, "myImage" + ".jpg");
+                        try {
+                            //Log.d("haaaam imgagesList size",imagesList.size()+"");
+                            //Log.d("haaaam imagesLive size",homeViewModel.imagesListLiveData.getValue().size()+"");
+                            outFile = new FileOutputStream(file);
+//                        Log.d("File imageeee",file.getAbsolutePath());
+//                            imagesPath.add(file.getAbsolutePath());
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outFile);
+//                            imagesList.add(bitmap);
+//                            homeViewModel.setImagesListLiveData(imagesList);
+                            outFile.flush();
+                            outFile.close();
+                            //  Uri u = getUriForFile(ImagePickerActivity.this, getPackageName() + ".provider", file);
+                            Uri u = Uri.fromFile(file);
+                            imageUri = path;
+//                            cropImage(u);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     cropImage(getCacheImagePath(fileName));
                 } else {
                     fileName = null;
@@ -227,17 +280,17 @@ public class ImagePickerActivity extends AppCompatActivity {
     }
 
 
-    private void setResultOk(Uri imagePath, int offsetX, int offsetY,int width ,int height) {
+    private void setResultOk(Uri imagePath, int offsetX, int offsetY, int width, int height) {
         Intent intent = new Intent();
         intent.putExtra("path", imagePath);
         intent.putExtra("offsetX", offsetX);
         intent.putExtra("offsetY", offsetY);
         intent.putExtra("w", width);
         intent.putExtra("h", height);
-        if (fileName != null)
-            intent.putExtra("original", getCacheImagePath(fileName).toString());
-        else if (imageUri != null)
-            intent.putExtra("original", imageUri);
+        // if (fileName != null)
+        // intent.putExtra("original", getCacheImagePath(fileName).toString());
+        // else if (imageUri != null)
+        intent.putExtra("original", imageUri);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
@@ -253,6 +306,14 @@ public class ImagePickerActivity extends AppCompatActivity {
         if (!path.exists()) path.mkdirs();
         File image = new File(path, fileName);
         return getUriForFile(ImagePickerActivity.this, getPackageName() + ".provider", image);
+    }
+
+    private File getCacheImageFile(String fileName) {
+        File path = new File(getExternalCacheDir(), "camera");
+        if (!path.exists()) path.mkdirs();
+        File image = new File(path, fileName);
+        return image;
+//        return getUriForFile(ImagePickerActivity.this, getPackageName() + ".provider", image);
     }
 
     private static String queryName(ContentResolver resolver, Uri uri) {
